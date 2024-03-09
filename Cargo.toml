@@ -13,22 +13,28 @@ repository = "https://github.com/Jaxydog/amethyst-colorizer"
 
 [[bin]]
 name = "amethyst-colorizer"
-path = "src/bin/main.rs"
+path = "src/bin/cli.rs"
 required-features = ["cli"]
+
+[[bin]]
+name = "amethyst-colorizer-shuttle"
+path = "src/bin/shuttle.rs"
+required-features = ["shuttle"]
 
 [lib]
 name = "amethyst_colorizer"
 path = "src/lib.rs"
 
 [features]
-default = ["cli"]
+default = ["shuttle"]
 cli = []
+shuttle = ["dep:axum", "dep:shuttle-axum", "dep:shuttle-runtime", "dep:tera", "dep:tokio"]
 
 [dependencies]
-axum = "0.7"
+axum = { version = "0.7", optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-shuttle-axum = "0.41"
-shuttle-runtime = "0.41"
-tera = "1.19"
-tokio = "1.28"
+shuttle-axum = { version = "0.41", optional = true }
+shuttle-runtime = { version = "0.41", optional = true }
+tera = { version = "1.19", optional = true }
+tokio = { version = "1.28", optional = true }

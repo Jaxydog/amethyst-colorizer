@@ -16,6 +16,8 @@ If you want to self-host, you can use the [shuttle command-line tool](https://do
 
 There is also a command-line tool, which can be built locally by cloning this repository.
 
+Note that this must be compiled using only the `cli` feature.
+
 ```sh
 amethyst-colorizer [input] [..args]
 ```
