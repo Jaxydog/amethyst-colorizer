@@ -26,14 +26,15 @@ The main library of Amethyst Colorizer is located within `src/lib.rs`. To use th
 the following to your Cargo manifest.
 
 ```toml
-[dependencies]
-amethyst-colorizer = { git = "https://github.com/Jaxydog/amethyst-colorizer.git" }
+[dependencies.amethyst-colorizer]
+git = "https://github.com/Jaxydog/amethyst-colorizer.git"
+default-features = false
 ```
 
 Alternatively, you may run the following command:
 
 ```sh
-cargo add amethyst-colorizer --git https://github.com/Jaxydog/amethyst-colorizer.git
+cargo add amethyst-colorizer --git https://github.com/Jaxydog/amethyst-colorizer.git --no-default-features
 ```
 
 ### License
