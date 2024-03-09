@@ -14,3 +14,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License along with Amethyst Colorizer. If not, see
 // <https://www.gnu.org/licenses/>.
+
+#[cfg(all(feature = "cli", feature = "shuttle"))]
+compile_error!("only one of 'cli' or 'shuttle' may be enabled");
