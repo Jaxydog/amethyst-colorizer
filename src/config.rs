@@ -78,7 +78,7 @@ pub enum FilterTarget {
     /// The saturation of the color or image.
     Saturation,
     /// The lightness of the color or image.
-    Lightness,
+    Brightness,
     /// The contrast of the image. Does nothing for pixels.
     Contrast,
 }

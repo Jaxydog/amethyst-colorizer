@@ -30,7 +30,7 @@
                 },
                 {
                     "type": "pixel",
-                    "target": "lightness",
+                    "target": "brightness",
                     "operation": "add",
                     "value": -0.225
                 }
@@ -51,7 +51,7 @@
                 },
                 {
                     "type": "pixel",
-                    "target": "lightness",
+                    "target": "brightness",
                     "operation": "add",
                     "value": -0.45
                 },
@@ -78,7 +78,7 @@
                 },
                 {
                     "type": "pixel",
-                    "target": "lightness",
+                    "target": "brightness",
                     "operation": "add",
                     "value": -0.6
                 },
@@ -99,7 +99,7 @@
             "filters": [
                 {
                     "type": "pixel",
-                    "target": "lightness",
+                    "target": "brightness",
                     "operation": "add",
                     "value": -0.25
                 }
@@ -180,7 +180,7 @@
                 },
                 {
                     "type": "pixel",
-                    "target": "lightness",
+                    "target": "brightness",
                     "operation": "add",
                     "value": -0.325
                 },
@@ -207,7 +207,7 @@
                 },
                 {
                     "type": "pixel",
-                    "target": "lightness",
+                    "target": "brightness",
                     "operation": "add",
                     "value": -0.25
                 }
@@ -288,7 +288,7 @@
                 },
                 {
                     "type": "pixel",
-                    "target": "lightness",
+                    "target": "brightness",
                     "operation": "add",
                     "value": 0.1
                 }
