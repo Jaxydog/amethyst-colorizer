@@ -56,7 +56,7 @@ pub struct Filter {
     /// The operation applied to the value.
     pub operation: FilterOperation,
     /// The color filter value.
-    pub value: f64,
+    pub value: f32,
 }
 
 /// The type of a filter.
