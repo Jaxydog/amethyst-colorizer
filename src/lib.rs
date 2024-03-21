@@ -15,5 +15,14 @@
 // You should have received a copy of the GNU Affero General Public License along with Amethyst Colorizer. If not, see
 // <https://www.gnu.org/licenses/>.
 
+//! A small utility website that automatically converts amethyst into their dyeable variants.
+#![deny(clippy::expect_used, clippy::panic, clippy::unwrap_used, unsafe_code)]
+#![warn(clippy::nursery, clippy::todo, clippy::pedantic, missing_docs)]
+#![allow(clippy::module_name_repetitions)]
+
 #[cfg(all(feature = "cli", feature = "shuttle"))]
 compile_error!("only one of 'cli' or 'shuttle' may be enabled");
+
+/// Defines the library's configuration file.
+pub mod config;
+
