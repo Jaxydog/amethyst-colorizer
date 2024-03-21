@@ -1,0 +1,298 @@
+{
+    "colors": {
+        "white": {
+            "rgb": [
+                249,
+                255,
+                254
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "set",
+                    "value": 0.0
+                }
+            ]
+        },
+        "light_gray": {
+            "rgb": [
+                157,
+                157,
+                151
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "set",
+                    "value": 0.0
+                },
+                {
+                    "type": "pixel",
+                    "target": "lightness",
+                    "operation": "add",
+                    "value": -0.225
+                }
+            ]
+        },
+        "gray": {
+            "rgb": [
+                71,
+                79,
+                82
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "set",
+                    "value": 0.0
+                },
+                {
+                    "type": "pixel",
+                    "target": "lightness",
+                    "operation": "add",
+                    "value": -0.45
+                },
+                {
+                    "type": "image",
+                    "target": "contrast",
+                    "operation": "multiply",
+                    "value": 0.625
+                }
+            ]
+        },
+        "black": {
+            "rgb": [
+                29,
+                29,
+                33
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "set",
+                    "value": 0.0
+                },
+                {
+                    "type": "pixel",
+                    "target": "lightness",
+                    "operation": "add",
+                    "value": -0.6
+                },
+                {
+                    "type": "image",
+                    "target": "contrast",
+                    "operation": "multiply",
+                    "value": 0.5
+                }
+            ]
+        },
+        "brown": {
+            "rgb": [
+                131,
+                84,
+                50
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "lightness",
+                    "operation": "add",
+                    "value": -0.25
+                }
+            ]
+        },
+        "red": {
+            "rgb": [
+                176,
+                46,
+                38
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.25
+                }
+            ]
+        },
+        "orange": {
+            "rgb": [
+                249,
+                128,
+                29
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.25
+                }
+            ]
+        },
+        "yellow": {
+            "rgb": [
+                254,
+                216,
+                61
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.25
+                }
+            ]
+        },
+        "lime": {
+            "rgb": [
+                128,
+                199,
+                31
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.25
+                }
+            ]
+        },
+        "green": {
+            "rgb": [
+                94,
+                124,
+                22
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.375
+                },
+                {
+                    "type": "pixel",
+                    "target": "lightness",
+                    "operation": "add",
+                    "value": -0.325
+                },
+                {
+                    "type": "image",
+                    "target": "contrast",
+                    "operation": "multiply",
+                    "value": 0.875
+                }
+            ]
+        },
+        "cyan": {
+            "rgb": [
+                22,
+                156,
+                156
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.25
+                },
+                {
+                    "type": "pixel",
+                    "target": "lightness",
+                    "operation": "add",
+                    "value": -0.25
+                }
+            ]
+        },
+        "light_blue": {
+            "rgb": [
+                58,
+                179,
+                218
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.25
+                }
+            ]
+        },
+        "blue": {
+            "rgb": [
+                60,
+                68,
+                170
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.25
+                }
+            ]
+        },
+        "purple": {
+            "rgb": [
+                137,
+                50,
+                184
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.25
+                }
+            ]
+        },
+        "magenta": {
+            "rgb": [
+                199,
+                78,
+                189
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.25
+                }
+            ]
+        },
+        "pink": {
+            "rgb": [
+                243,
+                139,
+                170
+            ],
+            "filters": [
+                {
+                    "type": "pixel",
+                    "target": "saturation",
+                    "operation": "add",
+                    "value": 0.1
+                },
+                {
+                    "type": "pixel",
+                    "target": "lightness",
+                    "operation": "add",
+                    "value": 0.1
+                }
+            ]
+        }
+    }
+}
