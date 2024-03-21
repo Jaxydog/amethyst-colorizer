@@ -25,4 +25,3 @@ compile_error!("only one of 'cli' or 'shuttle' may be enabled");
 
 /// Defines the library's configuration file.
 pub mod config;
-

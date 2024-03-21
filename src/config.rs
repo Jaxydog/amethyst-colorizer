@@ -91,6 +91,8 @@ pub enum FilterOperation {
     Add,
     /// The value is multiplied by the base value.
     Multiply,
+    /// The value is set.
+    Set,
 }
 
 macro_rules! simple_const_get {
