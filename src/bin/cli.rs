@@ -36,6 +36,9 @@ pub struct Arguments {
     /// The expected dye color. If absent, all colors will be generated.
     #[arg(short = 't', long = "target-color")]
     pub color: Option<DyeColor>,
+    /// The directory to output the converted files into.
+    #[arg(short = 'o', long = "output-dir", value_name = "DIR", default_value = "./out/")]
+    pub output: Box<Path>,
 }
 
 #[macro_export]
@@ -102,6 +105,12 @@ fn main() -> Result<()> {
         file_extension = Some(extension);
     }
 
+    if arguments.output.try_exists()? {
+        assert!(arguments.output.is_dir(), "the specified output path is not a directory");
+    } else {
+        std::fs::create_dir_all(&arguments.output)?;
+    }
+
     let config: Config = serde_json::from_slice(&std::fs::read(&arguments.config)?)?;
 
     if let Some(ref color) = arguments.color {
@@ -109,13 +118,37 @@ fn main() -> Result<()> {
     }
 
     match file_extension {
-        Some("png") => self::main_png(arguments, config),
+        Some("png") => self::main_png(&arguments, &config),
         Some("zip") | None => self::main_zip(arguments, config),
         Some(extension) => bail!("unknown extension '{extension}'"),
     }
 }
 
-fn main_png(arguments: Arguments, config: Config) -> Result<()> {
+fn main_png(arguments: &Arguments, config: &Config) -> Result<()> {
+    let image = image::open(&arguments.path)?;
+
+    if let Some(ref color) = arguments.color {
+        let output = arguments.output.join(format!("{color}_amethyst.png"));
+        let mut buffer = image.to_rgba8();
+
+        let Some(config) = config.colors.get(color) else {
+            bail!("the given color is missing from the configuration file");
+        };
+
+        amethyst_colorizer::transform_image(config, &mut buffer)?;
+        image::save_buffer(output, &buffer, buffer.width(), buffer.height(), image.color())?;
+
+        return Ok(());
+    }
+
+    for (color, config) in &config.colors {
+        let output = arguments.output.join(format!("{color}_amethyst.png"));
+        let mut buffer = image.to_rgba8();
+
+        amethyst_colorizer::transform_image(config, &mut buffer)?;
+        image::save_buffer(output, &buffer, buffer.width(), buffer.height(), image.color())?;
+    }
+
     Ok(())
 }
 

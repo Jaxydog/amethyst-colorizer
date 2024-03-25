@@ -1,4 +1,7 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    fmt::{Display, Write},
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -31,6 +34,14 @@ pub enum DyeColor {
     Purple,
     Magenta,
     Pink,
+}
+
+impl Display for DyeColor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let color = serde_json::to_string(self).unwrap_or_else(|_| "dyed".to_string());
+
+        f.write_str(&color.replace('"', ""))
+    }
 }
 
 /// Configuration for a single dye color.
