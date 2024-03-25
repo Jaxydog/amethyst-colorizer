@@ -16,31 +16,22 @@ name = "amethyst-colorizer"
 path = "src/bin/cli.rs"
 required-features = ["cli"]
 
-[[bin]]
-name = "amethyst-colorizer-shuttle"
-path = "src/bin/shuttle.rs"
-required-features = ["shuttle"]
-
 [lib]
 name = "amethyst_colorizer"
 path = "src/lib.rs"
 
 [features]
 default = ["cli"]
-cli = ["dep:clap"]
-shuttle = ["dep:axum", "dep:shuttle-axum", "dep:shuttle-runtime", "dep:tera", "dep:tokio"]
+cli = ["clap", "dep:anyhow"]
+clap = ["dep:clap"]
 
 [dependencies]
-axum = { version = "0.7", optional = true }
+anyhow = { version = "1.0", optional = true }
 clap = { version = "4.5", features = ["derive"], optional = true }
 image = { version = "0.25", default-features = false, features = ["png", "rayon"] }
 palette = "0.7"
 rayon = "1.10"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-shuttle-axum = { version = "0.41", optional = true }
-shuttle-runtime = { version = "0.41", optional = true }
-tera = { version = "1.19", optional = true }
 thiserror = "1.0"
-tokio = { version = "1.28", optional = true }
 zip = { version = "0.6", default-features = false, features = ["deflate"] }

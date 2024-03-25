@@ -11,6 +11,7 @@ pub struct Config {
 
 /// All possible dye colors.
 #[allow(missing_docs)]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DyeColor {

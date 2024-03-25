@@ -22,53 +22,91 @@
 
 use config::{DyeColorConfig, Filter, FilterOperation, FilterTarget, FilterType};
 use image::{
-    imageops::colorops::{contrast_in_place, huerotate_in_place},
+    imageops::colorops::{brighten_in_place, contrast_in_place, huerotate_in_place},
     Pixel, RgbaImage,
 };
 use palette::{
-    encoding::Linear, FromColor, GetHue, Hsv, Hsva, IntoColor, LinSrgb, LinSrgba, SetHue, ShiftHueAssign, Srgb, Srgba,
+    encoding::Linear, FromColor, GetHue, Hsv, Hsva, IntoColor, LinSrgba, SetHue, ShiftHueAssign, Srgb, Srgba,
 };
-
-#[cfg(all(feature = "cli", feature = "shuttle"))]
-compile_error!("only one of 'cli' or 'shuttle' may be enabled");
 
 /// Defines the library's configuration file.
 pub mod config;
 
+/// A result type returned by the library.
+pub type Result<T, E = Error> = std::result::Result<T, E>;
+
+/// A possible error returned by the library.
 #[derive(Debug, thiserror::Error)]
-pub enum Error {}
+pub enum Error {
+    /// A filter was given an invalid type and operator combination.
+    #[error("invalid operation '{0:?}', '{1:?}', '{2:?}'")]
+    InvalidFilter(FilterType, FilterTarget, FilterOperation),
+}
 
-/// Applies transformations to an image to convert it into a 'dyed' variant.
-pub fn transform_image(config: &DyeColorConfig, image: &mut RgbaImage) {
-    let target: LinSrgb<f32> = Srgb::from_components(config.rgb.into()).into_linear();
-    let target = Hsv::from_color(target);
-
-    for pixel in image.pixels_mut() {
-        let rgba = pixel.to_rgba().0.into();
-        let rgba: LinSrgba<f32> = Srgba::from_components(rgba).into_linear();
-        let mut hsva = Hsva::from_color(rgba);
-
-        hsva.set_hue(target.get_hue());
-
-        for filter in config.filters.iter().filter(|f| f.kind == FilterType::Pixel).copied() {
-            self::apply_pixel_filter(filter, &mut hsva);
-        }
-
-        let rgba: LinSrgba<f32> = hsva.into_color();
-        let rgba: LinSrgba<u8> = rgba.into_format();
-
-        pixel.0 = rgba.into_components().into();
-    }
-
-    for filter in config.filters.iter().filter(|f| f.kind == FilterType::Image).copied() {
-        self::apply_image_filter(filter, image);
+impl Error {
+    /// Creates an invalid filter error.
+    #[must_use]
+    pub const fn invalid_filter(filter: Filter) -> Self {
+        Self::InvalidFilter(filter.kind, filter.target, filter.operation)
     }
 }
 
+/// Iterates over each pixel within an image, applying the given closure to its HSVA value.
+///
+/// # Errors
+///
+/// This function may return an error if the given closure returns an error.
+fn walk_pixels(
+    image: &mut RgbaImage,
+    mut f: impl FnMut(&mut Hsva<Linear<palette::encoding::Srgb>>) -> Result<()>,
+) -> Result<()> {
+    for pixel in image.pixels_mut() {
+        // black magic
+        let mut hsva = Hsva::from_color(Srgba::from_components(pixel.to_rgba().0.into()).into_linear());
+
+        f(&mut hsva)?;
+
+        let rgba: LinSrgba<f32> = hsva.into_color();
+
+        pixel.0 = rgba.into_format().into_components().into();
+    }
+
+    Ok(())
+}
+
+/// Applies transformations to an image to convert it into a 'dyed' variant.
+///
+/// # Errors
+///
+/// This function may return an error if a given filter has an invalid target/operator combination.
+pub fn transform_image(config: &DyeColorConfig, image: &mut RgbaImage) -> Result<()> {
+    let target = Hsv::from_color(Srgb::from_components(config.rgb.into()).into_linear());
+
+    self::walk_pixels(image, |hsva| {
+        hsva.set_hue(target.get_hue());
+
+        for filter in config.filters.iter().filter(|f| f.kind == FilterType::Pixel).copied() {
+            self::apply_pixel_filter(filter, hsva)?;
+        }
+
+        Ok(())
+    })?;
+
+    for filter in config.filters.iter().filter(|f| f.kind == FilterType::Image).copied() {
+        self::apply_image_filter(filter, image)?;
+    }
+
+    Ok(())
+}
+
 /// Applies pixel-specific filters.
-pub fn apply_pixel_filter(filter: Filter, hsva: &mut Hsva<Linear<palette::encoding::Srgb>>) {
+///
+/// # Errors
+///
+/// This function may return an error if a given filter has an invalid target/operator combination.
+pub fn apply_pixel_filter(filter: Filter, hsva: &mut Hsva<Linear<palette::encoding::Srgb>>) -> Result<()> {
     match filter.target {
-        FilterTarget::Contrast => { /* intentionally ignored */ }
+        FilterTarget::Contrast => return Err(Error::invalid_filter(filter)),
         FilterTarget::Hue => match filter.operation {
             FilterOperation::Add => hsva.shift_hue_assign(filter.value),
             FilterOperation::Multiply => hsva.set_hue(hsva.get_hue().into_inner() * filter.value),
@@ -84,23 +122,34 @@ pub fn apply_pixel_filter(filter: Filter, hsva: &mut Hsva<Linear<palette::encodi
             FilterOperation::Multiply => hsva.value = (hsva.value * filter.value).clamp(0.0, 1.0),
             FilterOperation::Set => hsva.value = filter.value.clamp(0.0, 1.0),
         },
-    }
+    };
+
+    Ok(())
 }
 
 /// Applies image-specific filters.
+///
+/// # Errors
+///
+/// This function may return an error if a given filter has an invalid target/operator combination.
 #[allow(clippy::cast_possible_truncation)]
-pub fn apply_image_filter(filter: Filter, image: &mut RgbaImage) {
+pub fn apply_image_filter(filter: Filter, image: &mut RgbaImage) -> Result<()> {
     match filter.target {
         FilterTarget::Contrast => match filter.operation {
             FilterOperation::Add => contrast_in_place(image, filter.value),
-            FilterOperation::Multiply | FilterOperation::Set => contrast_in_place(image, filter.value - 1.0),
+            FilterOperation::Multiply => contrast_in_place(image, filter.value - 1.0),
+            FilterOperation::Set => return Err(Error::invalid_filter(filter)),
         },
         FilterTarget::Hue => match filter.operation {
             FilterOperation::Add => huerotate_in_place(image, filter.value.round() as i32),
-            FilterOperation::Multiply => huerotate_in_place(image, value),
-            FilterOperation::Set => todo!(),
+            FilterOperation::Multiply | FilterOperation::Set => return Err(Error::invalid_filter(filter)),
         },
-        FilterTarget::Saturation => todo!(),
-        FilterTarget::Brightness => todo!(),
+        FilterTarget::Saturation => self::walk_pixels(image, |hsva| self::apply_pixel_filter(filter, hsva))?,
+        FilterTarget::Brightness => match filter.operation {
+            FilterOperation::Add => brighten_in_place(image, filter.value.round() as i32),
+            FilterOperation::Multiply | FilterOperation::Set => return Err(Error::invalid_filter(filter)),
+        },
     };
+
+    Ok(())
 }
