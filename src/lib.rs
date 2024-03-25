@@ -25,7 +25,7 @@ use image::{
     imageops::colorops::{brighten_in_place, contrast_in_place, huerotate_in_place},
     Pixel, RgbaImage,
 };
-use palette::{FromColor, GetHue, Hsv, Hsva, IntoColor, SetHue, ShiftHueAssign, Srgb, Srgba};
+use palette::{FromColor, GetHue, Hsv, Hsva, IntoColor, SaturateAssign, SetHue, ShiftHueAssign, Srgb, Srgba};
 
 /// Defines the library's configuration file.
 pub mod config;
@@ -78,10 +78,10 @@ fn walk_pixels(
 ///
 /// This function may return an error if a given filter has an invalid target/operator combination.
 pub fn transform_image(config: &DyeColorConfig, image: &mut RgbaImage) -> Result<()> {
-    let target = Hsv::from_color(Srgb::from_components(config.rgb.into()).into_linear());
+    let target = Hsv::from_color(Srgb::from_components(config.rgb.into()).into_format());
 
     self::walk_pixels(image, |hsva| {
-        hsva.set_hue(target.get_hue());
+        hsva.set_hue(target.hue);
 
         for filter in config.filters.iter().filter(|f| f.kind == FilterType::Pixel).copied() {
             self::apply_pixel_filter(filter, hsva)?;
@@ -111,8 +111,8 @@ pub fn apply_pixel_filter(filter: Filter, hsva: &mut Hsva<palette::encoding::Srg
             FilterOperation::Set => hsva.set_hue(filter.value),
         },
         FilterTarget::Saturation => match filter.operation {
-            FilterOperation::Add => hsva.saturation = (hsva.saturation + filter.value).clamp(0.0, 1.0),
-            FilterOperation::Multiply => hsva.saturation = (hsva.saturation * filter.value).clamp(0.0, 1.0),
+            FilterOperation::Add => hsva.saturate_fixed_assign(filter.value),
+            FilterOperation::Multiply => hsva.saturate_assign(filter.value),
             FilterOperation::Set => hsva.saturation = filter.value.clamp(0.0, 1.0),
         },
         FilterTarget::Brightness => match filter.operation {
