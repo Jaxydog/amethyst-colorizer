@@ -15,4 +15,110 @@
 // You should have received a copy of the GNU Affero General Public License along with Amethyst Colorizer. If not, see
 // <https://www.gnu.org/licenses/>.
 
-fn main() {}
+#![deny(clippy::expect_used, clippy::panic, clippy::unwrap_used, unsafe_code)]
+#![warn(clippy::nursery, clippy::todo, clippy::pedantic)]
+#![allow(clippy::module_name_repetitions)]
+
+use std::path::Path;
+
+use amethyst_colorizer::config::{Config, DyeColor};
+use anyhow::{bail, Result};
+use clap::Parser;
+
+#[derive(Clone, Debug, Parser)]
+#[command(author, version, about, long_about = None)]
+pub struct Arguments {
+    /// The path of the image to convert.
+    pub path: Box<Path>,
+    /// The path of the color configuration to load.
+    #[arg(short = 'c', long = "config", value_name = "PATH", default_value = "./res/default.json")]
+    pub config: Box<Path>,
+    /// The expected dye color. If absent, all colors will be generated.
+    #[arg(short = 't', long = "target-color")]
+    pub color: Option<DyeColor>,
+}
+
+#[macro_export]
+macro_rules! assert {
+    ($test:expr $(,)?) => {
+        if !$test {
+            ::anyhow::bail!("assertion failed - '{}'", ::std::stringify!($test));
+        }
+    };
+    ($test:expr, $($message:tt)+) => {
+        if !$test {
+            ::anyhow::bail!($($message)*);
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! assert_eq {
+    ($left:expr, $right:expr $(,)?) => {
+        $crate::assert!($left == $right);
+    };
+    ($left:expr, $right:expr, $($message:tt)+) => {
+        $crate::assert!($left == $right, $($message)+);
+    };
+}
+
+#[macro_export]
+macro_rules! assert_ne {
+    ($left:expr, $right:expr $(,)?) => {
+        $crate::assert!($left != $right);
+    };
+    ($left:expr, $right:expr, $($message:tt)+) => {
+        $crate::assert!($left != $right, $($message)+);
+    };
+}
+
+#[macro_export]
+macro_rules! assert_matches {
+    ($value:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {
+        match $value {
+            $pattern $(if $guard)? => {}
+            _ => bail!("assertion failed - unable to match for '{:?}'", $value);
+        }
+    };
+    ($value:expr, $pattern:pat $(if $guard:expr)?, $($message:tt)+) => {
+        match $value {
+            $pattern $(if $guard)? => {}
+            _ => bail!($($message)+),
+        }
+    };
+}
+
+fn main() -> Result<()> {
+    let arguments = Arguments::parse();
+
+    assert!(arguments.config.try_exists()?, "unable to find the target file at {:?}", arguments.config);
+    assert!(arguments.path.try_exists()?, "unable to find the configuration file at {:?}", arguments.path);
+
+    let mut file_extension = None;
+
+    if let Some(extension) = arguments.path.extension().and_then(|s| s.to_str()) {
+        assert_matches!(extension, "png" | "zip", "the specified file must be either a .zip or .png file");
+
+        file_extension = Some(extension);
+    }
+
+    let config: Config = serde_json::from_slice(&std::fs::read(&arguments.config)?)?;
+
+    if let Some(ref color) = arguments.color {
+        assert!(config.colors.contains_key(color), "the given color is missing from the configuration file");
+    }
+
+    match file_extension {
+        Some("png") => self::main_png(arguments, config),
+        Some("zip") | None => self::main_zip(arguments, config),
+        Some(extension) => bail!("unknown extension '{extension}'"),
+    }
+}
+
+fn main_png(arguments: Arguments, config: Config) -> Result<()> {
+    Ok(())
+}
+
+fn main_zip(arguments: Arguments, config: Config) -> Result<()> {
+    Ok(())
+}
