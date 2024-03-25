@@ -25,9 +25,7 @@ use image::{
     imageops::colorops::{brighten_in_place, contrast_in_place, huerotate_in_place},
     Pixel, RgbaImage,
 };
-use palette::{
-    encoding::Linear, FromColor, GetHue, Hsv, Hsva, IntoColor, LinSrgba, SetHue, ShiftHueAssign, Srgb, Srgba,
-};
+use palette::{FromColor, GetHue, Hsv, Hsva, IntoColor, SetHue, ShiftHueAssign, Srgb, Srgba};
 
 /// Defines the library's configuration file.
 pub mod config;
@@ -58,15 +56,15 @@ impl Error {
 /// This function may return an error if the given closure returns an error.
 fn walk_pixels(
     image: &mut RgbaImage,
-    mut f: impl FnMut(&mut Hsva<Linear<palette::encoding::Srgb>>) -> Result<()>,
+    mut f: impl FnMut(&mut Hsva<palette::encoding::Srgb>) -> Result<()>,
 ) -> Result<()> {
     for pixel in image.pixels_mut() {
         // black magic
-        let mut hsva = Hsva::from_color(Srgba::from_components(pixel.to_rgba().0.into()).into_linear());
+        let mut hsva = Hsva::from_color(Srgba::from_components(pixel.to_rgba().0.into()).into_format());
 
         f(&mut hsva)?;
 
-        let rgba: LinSrgba<f32> = hsva.into_color();
+        let rgba: Srgba<f32> = hsva.into_color();
 
         pixel.0 = rgba.into_format().into_components().into();
     }
@@ -104,7 +102,7 @@ pub fn transform_image(config: &DyeColorConfig, image: &mut RgbaImage) -> Result
 /// # Errors
 ///
 /// This function may return an error if a given filter has an invalid target/operator combination.
-pub fn apply_pixel_filter(filter: Filter, hsva: &mut Hsva<Linear<palette::encoding::Srgb>>) -> Result<()> {
+pub fn apply_pixel_filter(filter: Filter, hsva: &mut Hsva<palette::encoding::Srgb>) -> Result<()> {
     match filter.target {
         FilterTarget::Contrast => return Err(Error::invalid_filter(filter)),
         FilterTarget::Hue => match filter.operation {
